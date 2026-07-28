@@ -5,7 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"github.com/montruh-afk/pokedex/internal/pokeapi"
 )
+
+
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
 
 func CleanInput(text string) []string {
 	var final []string
@@ -19,31 +27,8 @@ func CleanInput(text string) []string {
 
 }
 
-type cliCommand struct {
-	name        string
-	description string
-	callback    func() error
-}
 
-var commands map[string]cliCommand
-
-func init() {
-	commands = map[string]cliCommand{
-		"exit": {
-			name:        "exit",
-			description: "Close the pokedex",
-			callback:    commandExit,
-		},
-
-		"help": {
-			name:        "help",
-			description: "Displays a help message",
-			callback:    commandhelp,
-		},
-	}
-}
-
-func Startrepl() {
+func Startrepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -56,24 +41,12 @@ func Startrepl() {
 		}
 
 		if value, ok := commands[input[0]]; ok {
-			value.callback()
+			err := value.callback(cfg)
+			if err != nil {
+				fmt.Print(err)
+			}
 		} else {
-			fmt.Println("Unknown command\nUse 'help' for usage")
+			fmt.Println("Unknown command - Use 'help' for usage")
 		}
 	}
-}
-
-func commandExit() error {
-	fmt.Println("Closing the pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
-
-func commandhelp() error {
-	fmt.Print("Welcome to the Pokedex!\n\nUsage:\n")
-
-	for key, value := range commands {
-		fmt.Printf("\n%s: %s\n", key, value.description)
-	}
-	return nil
 }
