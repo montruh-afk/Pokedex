@@ -64,7 +64,6 @@ func commandMap(cfg *config) error {
 	if err != nil {
 		return err
 	}
-
 	cfg.nextLocationsURL = locationsResp.Next
 	cfg.prevLocationsURL = locationsResp.Previous
 
