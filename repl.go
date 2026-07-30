@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	"github.com/montruh-afk/pokedex/internal/pokeapi"
 )
-
 
 type config struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
+	id *string
 }
 
 func CleanInput(text string) []string {
@@ -27,7 +28,6 @@ func CleanInput(text string) []string {
 
 }
 
-
 func Startrepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -37,16 +37,19 @@ func Startrepl(cfg *config) {
 		input := CleanInput(scanner.Text())
 
 		if len(input) == 0 {
-			continue
+			fmt.Println("Pokedex - see 'help' for usage")
 		}
 
 		if value, ok := commands[input[0]]; ok {
+			if len(input) > 1 {
+				cfg.id = &input[1]
+			}
 			err := value.callback(cfg)
 			if err != nil {
 				fmt.Print(err)
 			}
 		} else {
-			fmt.Println("Unknown command - Use 'help' for usage")
+			fmt.Println("Unknown command - see 'help' for usage")
 		}
 	}
 }

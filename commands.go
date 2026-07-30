@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"errors"
+	poke "github.com/montruh-afk/pokedex/internal/pokeapi"
 )
 
 
@@ -41,6 +42,12 @@ func init() {
 			description: "Returns the result of the most recent call to 'map'",
 			callback:    commandMapb,
 		},
+
+		"explore": {
+			name: "explore",
+			description: "Lists all Pokémon located in selected area",
+			callback: commandExplore,
+		},
 	}
 }
 
@@ -75,7 +82,7 @@ func commandMap(cfg *config) error {
 
 func commandMapb(cfg *config) error {
 	if cfg.prevLocationsURL == nil {
-		return errors.New("you're on the first page")
+		return errors.New("you're on the first page\n")
 	}
 
 	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.prevLocationsURL)
@@ -88,6 +95,28 @@ func commandMapb(cfg *config) error {
 
 	for _, loc := range locationResp.Results {
 		fmt.Println(loc.Name)
+	}
+	return nil
+}
+
+func commandExplore(cfg *config) error {
+	url := ""
+	if cfg.prevLocationsURL == nil {
+		url = fmt.Sprintf("%s%s/%s", poke.BaseURL, poke.DefaultLocation, *cfg.id)
+	} else {
+		url = fmt.Sprintf("%s/%s", *cfg.prevLocationsURL, *cfg.id)
+	}
+	locationsResp, err := cfg.pokeapiClient.ListLocations(&url)
+
+	if err != nil {
+		return err
+	}
+	
+
+	fmt.Println("Exploring", *cfg.id)
+	
+	for _, pokemon := range locationsResp.PokemonEncounters {
+		fmt.Println(pokemon.Pokemon.Name)
 	}
 	return nil
 }

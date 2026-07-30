@@ -8,11 +8,11 @@ import (
 
 // ListLocations -
 func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
-	url := baseURL + "/location-area"
+	url := BaseURL + DefaultLocation
 	if pageURL != nil {
+		
 		url = *pageURL
 	}
-
 	// Cache check for stored available resource
 	if val, ok := c.cash.Get(url); ok {
 		locationsResp := RespShallowLocations{}
