@@ -14,6 +14,7 @@ type config struct {
 	nextLocationsURL *string
 	prevLocationsURL *string
 	id *string
+	Pokedex map[string]pokeapi.RespShallowLocations
 }
 
 func CleanInput(text string) []string {
@@ -27,7 +28,6 @@ func CleanInput(text string) []string {
 	return final
 
 }
-
 func Startrepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -46,7 +46,7 @@ func Startrepl(cfg *config) {
 			}
 			err := value.callback(cfg)
 			if err != nil {
-				fmt.Print(err)
+				fmt.Println(err)
 			}
 		} else {
 			fmt.Println("Unknown command - see 'help' for usage")

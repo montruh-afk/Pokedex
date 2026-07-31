@@ -3,6 +3,7 @@ package pokeapi
 // RespShallowLocations -
 type RespShallowLocations struct {
 	Count    int     `json:"count"`
+	BaseExperience int `json:"base_experience"`
 	Next     *string `json:"next"`
 	Previous *string `json:"previous"`
 	Results  []struct {

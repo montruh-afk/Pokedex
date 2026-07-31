@@ -5,6 +5,8 @@ import (
 	"os"
 	"errors"
 	poke "github.com/montruh-afk/pokedex/internal/pokeapi"
+ 	random "math/rand"
+
 )
 
 
@@ -18,10 +20,11 @@ type cliCommand struct {
 var commands map[string]cliCommand
 
 func init() {
+	
 	commands = map[string]cliCommand{
 		"exit": {
 			name:        "exit",
-			description: "Close the pokedex",
+			description: "Closes the Pokedex",
 			callback:    commandExit,
 		},
 
@@ -47,6 +50,12 @@ func init() {
 			name: "explore",
 			description: "Lists all Pokémon located in selected area",
 			callback: commandExplore,
+		},
+
+		"catch": {
+			name: "catch",
+			description: "Adds a Pokémon to the Pokedex",
+			callback: commandCatch,
 		},
 	}
 }
@@ -117,6 +126,30 @@ func commandExplore(cfg *config) error {
 	
 	for _, pokemon := range locationsResp.PokemonEncounters {
 		fmt.Println(pokemon.Pokemon.Name)
+	}
+	return nil
+}
+
+func commandCatch(cfg *config) error {
+	id := *cfg.id
+	fmt.Println("Throwing a Pokeball at", fmt.Sprintf("%s...", id))
+	pokemon, err := cfg.pokeapiClient.Catch(cfg.id)
+	if err != nil {
+		fmt.Println("An error occoured from result from Catch.")
+		return err
+	}
+
+	chance := random.Intn(300)
+	if chance > 300 {
+		chance += 336
+	}
+	
+	if chance > pokemon.BaseExperience {
+		fmt.Println(id, "was caught!")
+		cfg.Pokedex[id] = pokemon
+		
+	} else {
+		fmt.Println(id, "escaped :(")
 	}
 	return nil
 }
