@@ -57,6 +57,12 @@ func init() {
 			description: "Adds a Pokémon to the Pokedex",
 			callback: commandCatch,
 		},
+
+		"inspect": {
+			name: "inspect",
+			description: "Returns information about a captured Pokémon",
+			callback: commandInspect,
+		},
 	}
 }
 
@@ -131,25 +137,42 @@ func commandExplore(cfg *config) error {
 }
 
 func commandCatch(cfg *config) error {
+	if cfg.id == nil {
+		return errors.New("you must provide a pokemon name")
+	}
 	id := *cfg.id
-	fmt.Println("Throwing a Pokeball at", fmt.Sprintf("%s...", id))
+	
 	pokemon, err := cfg.pokeapiClient.Catch(cfg.id)
 	if err != nil {
-		fmt.Println("An error occoured from result from Catch.")
-		return err
+		return fmt.Errorf("%s is not a valid Pokémon: %v", id, err)
 	}
-
+	fmt.Println("Throwing a Pokeball at", fmt.Sprintf("%s...", id))
+	
 	chance := random.Intn(300)
-	if chance > 300 {
+	if chance >= 299 {
 		chance += 336
 	}
 	
 	if chance > pokemon.BaseExperience {
+		
 		fmt.Println(id, "was caught!")
 		cfg.Pokedex[id] = pokemon
 		
 	} else {
 		fmt.Println(id, "escaped :(")
+	}
+	return nil
+}
+
+func commandInspect(cfg *config) error {
+	if cfg.id == nil {
+		return errors.New("you must provide a pokemon name to inspect\n")
+	}
+	id := *cfg.id
+	if value, ok := cfg.Pokedex[id]; !ok {
+		return fmt.Errorf("you have not caught %s\n", id)
+	} else {
+		poke.ParseStruct(&value, cfg.id)
 	}
 	return nil
 }

@@ -14,7 +14,7 @@ type config struct {
 	nextLocationsURL *string
 	prevLocationsURL *string
 	id *string
-	Pokedex map[string]pokeapi.RespShallowLocations
+	Pokedex map[string]pokeapi.Pokemon
 }
 
 func CleanInput(text string) []string {
