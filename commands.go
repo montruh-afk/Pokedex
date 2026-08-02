@@ -6,6 +6,7 @@ import (
 	"errors"
 	poke "github.com/montruh-afk/pokedex/internal/pokeapi"
  	random "math/rand"
+	
 
 )
 
@@ -63,11 +64,33 @@ func init() {
 			description: "Returns information about a captured Pokémon",
 			callback: commandInspect,
 		},
+
+		"pokedex": {
+			name: "pokedex",
+			description: "Returns a list of all captured Pokémon",
+			callback: commandPokedex,
+		},
+
+		"save": {
+			name: "save",
+			description: "Saves to cross-session Pokedex",
+			callback: Save,
+		},
+
+		"load": {
+			name: "load",
+			description: "Loads Pokedex save file if one is present",
+			callback: Load,
+		},
 	}
 }
 
+
 func commandExit(cfg *config) error {
+	fmt.Println("Saving Pokedex...")
+	Save(cfg)
 	fmt.Println("Closing the Pokedex... Goodbye!")
+
 	os.Exit(0)
 	return nil
 }
@@ -76,7 +99,7 @@ func commandHelp(cfg *config) error {
 	fmt.Print("Welcome to the Pokedex!\n\nUsage:\n")
 
 	for key, value := range commands {
-		fmt.Printf("\n%s: %s\n", key, value.description)
+		fmt.Printf("\n\t%s: %s\n", key, value.description)
 	}
 	return nil
 }
@@ -138,7 +161,9 @@ func commandExplore(cfg *config) error {
 
 func commandCatch(cfg *config) error {
 	if cfg.id == nil {
-		return errors.New("you must provide a pokemon name")
+		return errors.New("you must provide a pokemon name\n")
+	} else if _, ok := cfg.Pokedex[*cfg.id]; ok {
+		return fmt.Errorf("You have already captured %s\n", *cfg.id)
 	}
 	id := *cfg.id
 	
@@ -154,9 +179,9 @@ func commandCatch(cfg *config) error {
 	}
 	
 	if chance > pokemon.BaseExperience {
-		
-		fmt.Println(id, "was caught!")
 		cfg.Pokedex[id] = pokemon
+		fmt.Println(id, "was caught!\n\nYou may now inspect it with the 'inspect' command. \nSee 'help' for more")
+		
 		
 	} else {
 		fmt.Println(id, "escaped :(")
@@ -176,3 +201,16 @@ func commandInspect(cfg *config) error {
 	}
 	return nil
 }
+
+func commandPokedex(cfg *config) error {
+	if len(cfg.Pokedex) < 1 {
+		return fmt.Errorf("You have not captured any Pokémon\n")
+	}
+
+	fmt.Println("Your Pokedex:")
+	for key := range cfg.Pokedex {
+		fmt.Println("\t- ", key)
+	}
+	return nil
+}
+

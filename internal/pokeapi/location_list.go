@@ -44,7 +44,7 @@ func (c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
 	}
 
 	locationsResp := RespShallowLocations{}
-	c.cash.Add(url, dat)
+	go c.cash.Add(url, dat)
 	err = json.Unmarshal(dat, &locationsResp)
 	if err != nil {
 		return RespShallowLocations{}, err
@@ -87,7 +87,7 @@ func (c *Client) Catch(id *string) (Pokemon, error) {
 	}
 
 	locationsResp := Pokemon{}
-	c.cash.Add(url, dat)
+	go c.cash.Add(url, dat)
 	err = json.Unmarshal(dat, &locationsResp)
 	if err != nil {
 		return Pokemon{}, fmt.Errorf("Error processing returned json: %v", err)
