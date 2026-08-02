@@ -180,6 +180,7 @@ func commandCatch(cfg *config) error {
 	
 	if chance > pokemon.BaseExperience {
 		cfg.Pokedex[id] = pokemon
+		Save(cfg)
 		fmt.Println(id, "was caught!\n\nYou may now inspect it with the 'inspect' command. \nSee 'help' for more")
 		
 		
